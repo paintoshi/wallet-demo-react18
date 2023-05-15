@@ -1,81 +1,27 @@
-import {
-  Chain,
-  EthereumClient,
-  modalConnectors,
-  walletConnectProvider,
-} from "@web3modal/ethereum"
-import { configureChains, createClient, WagmiConfig } from "wagmi"
-import { arbitrum, mainnet, polygon, fantom } from "wagmi/chains"
+import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
+import { arbitrum, mainnet, fantom } from "wagmi/chains"
 import Wallet from "./Wallet"
 import './App.css'
 import { useEffect, useState } from "react"
+import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 
 // 1. Get projectID at https://cloud.walletconnect.com
 if (!process.env.REACT_APP_WALLETCONNECT_ID) {
-  throw new Error('You need to provide REACT_APP_WALLETCONNECT_ID env variable')
+  console.error("Need to provide a wallet connect ID as REACT_APP_WALLETCONNECT_ID env variable")
 }
 
-const projectId = process.env.REACT_APP_WALLETCONNECT_ID
+// 1. Get projectID at https://cloud.walletconnect.com
+const projectId = process.env.REACT_APP_WALLETCONNECT_ID ?? ''
+const chains = [mainnet, arbitrum, fantom]
+  const { publicClient } = configureChains(chains, [w3mProvider({ projectId })])
+  const wagmiConfig = createConfig({
+    autoConnect: true,
+    connectors: w3mConnectors({ projectId, version: 1, chains }),
+    publicClient,
+  })
 
-// 2. Wagmi client
-const additionalChains: Chain[] = [
-  {
-    id: 250,
-    name: 'Fantom',
-    network: 'fantom',
-    nativeCurrency: {
-      name: 'Fantom',
-      symbol: 'FTM',
-      decimals: 18
-    },
-    rpcUrls: {
-      default: {
-        http: ['https://rpc.ankr.com/fantom']
-      },
-      public: {
-        http: ['https://rpc.ankr.com/fantom']
-      }
-    },
-    blockExplorers: {
-      default: {name: 'FTMScan', url: 'https://ftmscan.com'},
-      public: {name: 'FTMScan', url: 'https://ftmscan.com'}
-    },
-  },
-  {
-    id: 7700,
-    name: 'Canto',
-    network: 'canto',
-    nativeCurrency: {
-      name: 'Canto',
-      symbol: 'CANTO',
-      decimals: 18
-    },
-    rpcUrls: {
-      default: {
-        http: ['https://canto.slingshot.finance']
-      },
-      public: {
-        http: ['https://canto.slingshot.finance']
-      }
-    },
-    blockExplorers: {
-      default: {name: 'Canto Explorer', url: 'https://evm.explorer.canto.io'},
-      public: {name: 'Canto Explorer', url: 'https://evm.explorer.canto.io'}
-    },
-  }
-]
-const chains = [mainnet, ...additionalChains, arbitrum]
-const { provider } = configureChains(chains, [
-  walletConnectProvider({ projectId }),
-]);
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors: modalConnectors({ appName: "web3Modal", chains }),
-  provider,
-});
-
-// 3. Configure modal ethereum client
-export const ethereumClient = new EthereumClient(wagmiClient, chains)
+// 2. Configure modal ethereum client
+const ethereumClient = new EthereumClient(wagmiConfig, chains)
 
 function App() {
   const [ready, setReady] = useState(false)
@@ -87,8 +33,8 @@ function App() {
   return (
     <>
       {ready ? (
-        <WagmiConfig client={wagmiClient}>
-          <Wallet />
+        <WagmiConfig config={wagmiConfig}>
+          <Wallet ethereumClient={ethereumClient} projectId={projectId} configChains={chains} />
         </WagmiConfig>
       ) : null}
     </>

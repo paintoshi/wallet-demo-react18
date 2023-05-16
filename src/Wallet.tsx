@@ -2,7 +2,6 @@ import React from 'react'
 import { Web3Button, Web3Modal  } from '@web3modal/react'
 import { useAccount, useNetwork, useSwitchNetwork, useConnect, useDisconnect } from 'wagmi'
 import { EthereumClient } from '@web3modal/ethereum'
-import { InjectedConnector } from 'wagmi/connectors/injected'
 import { Chain } from 'viem'
 
 const Wallet= ({ethereumClient, projectId, configChains}: {ethereumClient: EthereumClient, projectId: string, configChains: Chain[]}) => {
@@ -15,16 +14,14 @@ const Wallet= ({ethereumClient, projectId, configChains}: {ethereumClient: Ether
   const { chains, error, isLoading, pendingChainId, switchNetwork } = useSwitchNetwork()
 
   // For injected wallet
-  const { connect } = useConnect({
-    connector: new InjectedConnector({ chains: configChains }),
-  })
+  const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
 
   return (
     <div style={{display: 'grid', gridGap: '16px', width: "300px"}}>
       <Web3Button balance="show" icon="hide" label="Connect Web3Modal" />
       {!isConnected ? (
-        <button onClick={() => connect()}>Connect Injected</button>
+        <button onClick={() => connect({connector: connectors.find((connector) => connector.id === 'injected')})}>Connect Injected</button>
       ) : (
         <button onClick={() => disconnect()}>Disconnect</button>
       )}

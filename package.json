@@ -12,7 +12,6 @@
     "@types/react-dom": "^18.0.10",
     "@web3modal/ethereum": "^2.4.1",
     "@web3modal/react": "^2.4.1",
-    "gh-pages": "^5.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
@@ -26,9 +25,7 @@
     "build": "react-scripts build",
     "serve-build": "npx serve -s build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "yarn build",
-    "deploy": "gh-pages -d build"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [

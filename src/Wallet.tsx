@@ -3,6 +3,7 @@ import { Web3Button, Web3Modal  } from '@web3modal/react'
 import { useAccount, useNetwork, useSwitchNetwork, useConnect, useDisconnect } from 'wagmi'
 import { EthereumClient } from '@web3modal/ethereum'
 import { Chain } from 'viem'
+import { Widget } from './Widget'
 
 const Wallet= ({ethereumClient, projectId, configChains}: {ethereumClient: EthereumClient, projectId: string, configChains: Chain[]}) => {
   const { isConnected } = useAccount()
@@ -20,6 +21,7 @@ const Wallet= ({ethereumClient, projectId, configChains}: {ethereumClient: Ether
   return (
     <div style={{display: 'grid', gridGap: '16px', width: "300px"}}>
       <Web3Button balance="show" icon="hide" label="Connect Web3Modal" />
+      <Widget />
       {!isConnected ? (
         <button onClick={() => connect({connector: connectors.find((connector) => connector.id === 'injected')})}>Connect Injected</button>
       ) : (
